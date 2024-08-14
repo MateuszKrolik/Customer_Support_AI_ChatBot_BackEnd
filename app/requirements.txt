@@ -1,3 +1,6 @@
-langchain 
-langchain_community 
-pypdf # Loading PDFs
+langchain # LLMs
+langchain_community # LLMs
+langchain_aws # for bedrock
+langchain_chroma # vector storage
+pypdf 
+chromadb # vector storage

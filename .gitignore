@@ -200,3 +200,6 @@ cython_debug/
 
 # editors
 .vscode/
+
+# db files
+chroma/
