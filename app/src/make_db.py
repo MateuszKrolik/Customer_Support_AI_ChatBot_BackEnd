@@ -4,8 +4,8 @@ from typing import List
 from langchain_community.document_loaders.pdf import PyPDFDirectoryLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.schema import Document
-from langchain_aws import BedrockEmbeddings
 from langchain_chroma import Chroma
+from get_embedding_func import get_embedding_func
 
 DATA_PATH = os.path.join(os.path.dirname(__file__), "data")
 DB_PATH = os.path.join(os.path.dirname(__file__), "chroma")
@@ -35,7 +35,7 @@ def save_to_vector_storage(chunks: List[Document]):
     # create vector store db
     Chroma.from_documents(
         documents=chunks,
-        embedding=BedrockEmbeddings(),
+        embedding=get_embedding_func(),
         persist_directory=DB_PATH,  # local vector storage
         collection_metadata={
             "hnsw:space": "cosine"
@@ -46,6 +46,8 @@ def save_to_vector_storage(chunks: List[Document]):
 
 def generate_vector_store_db():
     documents = load_documents()
+    # print(documents[0].metadata)
+    # metadata={"source": "data/file.pdf", "page":0}
     chunks = split_text(documents)
     save_to_vector_storage(chunks)
 
