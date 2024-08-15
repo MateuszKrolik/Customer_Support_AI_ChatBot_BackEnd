@@ -34,9 +34,12 @@ def save_to_vector_storage(chunks: List[Document]):
         shutil.rmtree(DB_PATH)
     # create vector store db
     Chroma.from_documents(
-        chunks,
-        BedrockEmbeddings(),
+        documents=chunks,
+        embedding=BedrockEmbeddings(),
         persist_directory=DB_PATH,  # local vector storage
+        collection_metadata={
+            "hnsw:space": "cosine"
+        },  # for relevance scores to be between 0-1
     )
     print(f"Saved {len(chunks)} chunks into {DB_PATH}.")
 
