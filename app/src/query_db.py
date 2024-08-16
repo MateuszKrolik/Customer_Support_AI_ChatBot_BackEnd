@@ -19,12 +19,11 @@ Answer the question based on the above context: {question}
 
 BEDROCK_MODEL_ID = "anthropic.claude-instant-v1"
 
-
 DB_PATH = os.path.join(os.path.dirname(__file__), "chroma")
 
 
 def search_for_similarity(
-    query_text: str,
+        query_text: str,
 ) -> Optional[List[Tuple[Document, float]]]:  # float is the relevance score
     vector_store = Chroma(
         embedding_function=get_embedding_func(), persist_directory=DB_PATH
@@ -67,11 +66,13 @@ def main() -> None:
 
     sources = []
     for doc, _score in results:
-        # doc.metadata={"source": "data/file.pdf", "page": int}
-        sources.append(doc.metadata.get("source",None))
+        # print(doc.metadata)
+        # doc.metadata={"id": "source:page:chunk_index", "source": "path/to/data/file.pdf", "page": int}
+        sources.append(doc.metadata.get("id", None))
 
     response_with_citations = f"Response: {response_content}\n\nSource: {sources}"
     print(response_with_citations)
+
 
 if __name__ == "__main__":
     main()
