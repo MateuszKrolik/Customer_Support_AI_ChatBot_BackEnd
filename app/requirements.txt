@@ -1,6 +1,13 @@
 langchain # LLMs
 langchain_community # LLMs
+boto3 # for aws
 langchain_aws # for bedrock
 langchain_chroma # vector storage
 pypdf 
 chromadb # vector storage
+
+# FastAPI
+fastapi
+uvicorn
+mangum # aws lambda handler
+pydantic # data validation

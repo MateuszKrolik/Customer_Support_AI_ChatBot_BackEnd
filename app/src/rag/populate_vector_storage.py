@@ -1,18 +1,20 @@
-import os
+import os, sys
 import shutil
+from argparse import ArgumentParser
 from typing import List
 from langchain_community.document_loaders.pdf import PyPDFDirectoryLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.schema import Document
-from langchain_chroma import Chroma
-from get_embedding_func import get_embedding_func
 
-DATA_PATH = os.path.join(os.path.dirname(__file__), "data")
-DB_PATH = os.path.join(os.path.dirname(__file__), "chroma")
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from vector_storage_singleton import VectorStorageSingleton
+
+SOURCE_PATH = "../data/source"
+VECTOR_STORAGE_PATH = "../data/chroma"
 
 
 def load_documents():
-    document_loader = PyPDFDirectoryLoader(DATA_PATH)
+    document_loader = PyPDFDirectoryLoader(SOURCE_PATH)
     return document_loader.load()
 
 
@@ -29,24 +31,15 @@ def split_text(documents: List[Document]):
 
 
 def save_to_vector_storage(chunks: List[Document]):
-    # recursively clear out the db first if present
-    clear_db()
-    # create vector store db
-    vector_store = Chroma(
-        # documents=chunks,
-        persist_directory=DB_PATH,  # local vector storage
-        embedding_function=get_embedding_func(),
-        collection_metadata={
-            "hnsw:space": "cosine"
-        },  # for relevance scores to be between 0-1
-    )
+    vector_storage_singleton = VectorStorageSingleton.instance()
+    existing_vector_storage = vector_storage_singleton.get_vector_storage
 
     chunks_with_ids = calculate_chunk_ids(chunks)
 
     # fetch IDs only w/o additional data (internal implementation)
     # https://cookbook.chromadb.dev/core/collections/#getting-ids-only
     # and turn them into a set for uniqueness and faster lookup
-    existing_items = vector_store.get(include=[])
+    existing_items = existing_vector_storage.get(include=[])
     existing_ids = set(existing_items["ids"])
     print(f"Number of existing docs in db: {len(existing_ids)}")
 
@@ -63,11 +56,11 @@ def save_to_vector_storage(chunks: List[Document]):
             new_chunk_ids.append(chunk.metadata["id"])
         # kwargs prevents chroma from automatically setting the id's,
         # which would cause a problem when checking for existing id's in custom format
-        vector_store.add_documents(new_chunks, ids=new_chunk_ids)
+        existing_vector_storage.add_documents(new_chunks, ids=new_chunk_ids)
     else:
         print("no new chunks to add.")
 
-    print(f"saved {len(chunks)} chunks into {DB_PATH}.")
+    print(f"saved {len(chunks)} chunks into {VECTOR_STORAGE_PATH}.")
 
 
 def calculate_chunk_ids(chunks: List[Document]) -> List[Document]:
@@ -93,19 +86,28 @@ def calculate_chunk_ids(chunks: List[Document]) -> List[Document]:
     return chunks
 
 
-def generate_vector_store_db():
+def populate_vector_storage():
     documents = load_documents()
     chunks = split_text(documents)
     save_to_vector_storage(chunks)
 
 
-def clear_db() -> None:
-    if os.path.exists(DB_PATH):
-        shutil.rmtree(DB_PATH)
+def clear_vector_storage() -> None:
+    if os.path.exists(VECTOR_STORAGE_PATH):
+        print("clearing vector storage...")
+        # recursively remove the root and its children
+        shutil.rmtree(VECTOR_STORAGE_PATH)
 
 
 def main():
-    generate_vector_store_db()
+    # only clear vector storage if script is run with "--reset" flag
+    parser = ArgumentParser()
+    parser.add_argument("--reset", action="store_true", help="reset vector storage.")
+    args = parser.parse_args()
+    if args.reset:
+        clear_vector_storage()
+
+    populate_vector_storage()
 
 
 if __name__ == "__main__":
