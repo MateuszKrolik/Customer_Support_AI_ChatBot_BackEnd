@@ -22,7 +22,6 @@ Answer the question based on the above context: {question}
 """
 
 BEDROCK_MODEL_ID = "anthropic.claude-instant-v1"
-VECTOR_DB_PATH = "../data/chroma"
 
 
 @dataclass

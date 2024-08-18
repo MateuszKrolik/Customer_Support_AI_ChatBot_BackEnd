@@ -12,3 +12,7 @@ The `cdk.json` file tells the CDK Toolkit how to execute your app.
 * `npx cdk deploy`  deploy this stack to your default AWS account/region
 * `npx cdk diff`    compare deployed stack with current state
 * `npx cdk synth`   emits the synthesized CloudFormation template
+
+### API Gateway URL
+
+https://ys7jaqt5djj6zgrv5fktk5b7ky0iotut.lambda-url.eu-central-1.on.aws/docs

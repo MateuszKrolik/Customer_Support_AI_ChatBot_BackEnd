@@ -27,6 +27,7 @@ class VectorStorageSingleton(object):
 
     @classmethod
     def _initialize_vector_storage(cls):
+        print(f"IS_DOCKER_IMAGE: {cls.IS_DOCKER_IMAGE}")
         if cls.IS_DOCKER_IMAGE:
             cls._copy_vector_storage_to_tmp()
         return Chroma(
@@ -41,9 +42,12 @@ class VectorStorageSingleton(object):
         if not cls.IS_DOCKER_IMAGE:
             return cls.VECTOR_STORAGE_ABSOLUTE_PATH
         else:
-            return f"/tmp/{cls.VECTOR_STORAGE_ABSOLUTE_PATH}"
+            # ensure path is fully resolved by storing it in a variable
+            constructed_path = f"/tmp/{cls.VECTOR_STORAGE_RELATIVE_PATH}"
+            print(f"Constructed path: {constructed_path}")
+            return constructed_path
 
-    # aws lambda only allows write access to "tmp/" dir
+    # aws lambda only allows write access to "/tmp/" dir
     @classmethod
     def _copy_vector_storage_to_tmp(cls):
         vector_storage_path = cls._get_vector_storage_path()
@@ -51,10 +55,11 @@ class VectorStorageSingleton(object):
             os.makedirs(vector_storage_path)
 
         tmp_contents = os.listdir(vector_storage_path)
+        print(f"Contents of {vector_storage_path} before copy: {tmp_contents}")
 
         if not tmp_contents:
-            print(f"copying vector storage to /tmp/...")
-            os.makedirs(vector_storage_path, exist_ok=True)
+            print(f"copying vector storage to {vector_storage_path}...")
             shutil.copytree(cls.VECTOR_STORAGE_RELATIVE_PATH, vector_storage_path, dirs_exist_ok=True)
+            print(f"Contents of {vector_storage_path} after copy: {os.listdir(vector_storage_path)}")
         else:
             print(f"vector storage already exists in {vector_storage_path}")

@@ -11,3 +11,4 @@ fastapi
 uvicorn
 mangum # aws lambda handler
 pydantic # data validation
+# dotenv # local env vars
