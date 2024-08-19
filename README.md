@@ -60,7 +60,7 @@
 To test out the API yourself, you can use the following 😉
 link: [API Documentation](https://ys7jaqt5djj6zgrv5fktk5b7ky0iotut.lambda-url.eu-central-1.on.aws/docs)
 
-https://github.com/user-attachments/assets/c37a37da-1d08-4518-a643-38352a2375e4
+https://github.com/user-attachments/assets/acd40a06-499c-4b97-8739-6e031532c955
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -161,6 +161,7 @@ I also suggest setting up a Python virtual environment via Anaconda.
     - [x] AWS Cloud Development Kit (CDK)
     - [x] AWS Systems Manager
     - [x] AWS AWS IAM
+- [x] Cross-Origin Resource Sharing (CORS) for future FrontEnd API access
 
 See the [open documentation](https://github.com/MateuszKrolik/Customer_Support_AI_ChatBot_BackEnd/issues) for a full
 list of proposed features (and
